@@ -1,4 +1,6 @@
-  # Script to demonstrate how to access PRISM climate and weather data and extracting values from it.
+#### Script to demonstrate how to access PRISM climate and weather data and extract values from it. ####
+# FOCAL-Latimer Lab meeting 11/25/2024
+# Andrew Latimer 
 
 # This approach uses the prism R library, which has some functions that shortcut some of the more general and manual steps Derek is demonstrating. 
 # So it's limited to PRISM data only, and less flexible that those more general methods, but sometimes quicker if you want to grab data from particular points or areas. 

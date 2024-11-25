@@ -64,8 +64,8 @@ list.files(prism_data_path, recursive = TRUE) %>%
   head(30)
 # Look at a the first available file as a raster 
 testfile_name <- list.files(prism_data_path, recursive = TRUE)[1]
-r <- rast(paste0(prism_data_path, testfile_name))
-plot(r)
+example_raster <- rast(paste0(prism_data_path, testfile_name))
+plot(example_raster)
 
 
 #### USING THE DATA ####
@@ -79,6 +79,13 @@ plot(r)
 # Choose the site 
 focal_site_name <- "MammothLakes"
 focal_site <- c(-118.990280, 37.592576)
+# Note that coordinate refererence system (CRS) for PRISM layers is NAD83 and uses digital degrees longitude and latitude. If the location data we have is in a different projection, we'd need to reproject it. 
+
+#For example, to use a centroid of a TRS location: 
+# plss <- st_read("./Public_Land_Survey_System_(PLSS)__Sections/Public_Land_Survey_System_(PLSS)%3A_Sections.shp")
+# plss_reproj <- st_transform(plss_data, st_crs(example_raster))
+# focal_centroid <- plss_reproj %>% filter(Township == "T24N" & Range == "R10E" & Section == 24) %>% st_centroid()
+# focal_site <- st_coordinates(focal_centroid$geometry)
 
 # Extract annual tmean data for the location using the prism library's slice function
 focal_data_tmean <- prism_archive_subset("tmean", "annual", years = 1993:2023)

@@ -18,7 +18,7 @@ PLOTS_FILE = "~/Downloads/climate_workshop/plot_locs/ofo-plots.gpkg"
 
 ## Load the climate data layers
 
-# Get a list of all the files
+# Get a list of all the relevant files
 rast_files = list.files(CLIM_DIR, pattern = "[0-9]{6}_bil.bil$")
 
 # Load them all as a big many-layer raster

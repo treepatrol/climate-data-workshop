@@ -4,7 +4,6 @@ library(tidyr)
 library(terra)
 library(sf)
 library(purrr)
-library(ggplot2)
 
 #### Constants
 

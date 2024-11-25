@@ -1,4 +1,4 @@
-# Script to demonstrate how to access PRISM climate and weather data and extracting values from it.
+  # Script to demonstrate how to access PRISM climate and weather data and extracting values from it.
 
 # This approach uses the prism R library, which has some functions that shortcut some of the more general and manual steps Derek is demonstrating. 
 # So it's limited to PRISM data only, and less flexible that those more general methods, but sometimes quicker if you want to grab data from particular points or areas. 
@@ -30,18 +30,20 @@ library(lubridate)
 
 # The first step in using PRISM is usually to download the data we need from the PRISM site. The prism library does this for us, but we need to set up a directory to store the data.
 
-# First make a subdirectory to store the climate data from PRISM 
-dir.create("../prism_data")
-prism_data_path <- "../prism_data/"
+# Normally we need to make a subdirectory to store the climate data from PRISM 
+#dir.create("../prism_data")
+#prism_data_path <- "../prism_data/"
 
-# Note alternatively we might connect to a shared drive where we (or someone) already downloaded and stored the relevant PRISM data. In that case we would set the data path to point to that location instead. 
-#prism_data_path <- "[...]/Climate_Data/prism_data"
+# Alternatively, we might connect to a shared drive where we (or someone) already downloaded and stored the relevant PRISM data. In that case we would set the data path to point to that location instead. 
+prism_data_path <- "/Users/latimer/Google Drive/My Drive/Cones/GeoData/prism_data/" # or whatever the path is on your computer!
 
 # Download the climate layers we want from PRISM 
 #   (assuming it's not already stored on Box or somewhere else!)
-prism_set_dl_dir(prism_data_path) # tell the prism functions where to store the data
 
-# Download long-term normal data -- warning this fqiled and I had to mqnually download these from https://prism.oregonstate.edu/normals/ (to do this, click select the spatial resolution then click "Download All Normals Data")
+# To work with the prism library, we have to set this path to tell the prism functions where to store and access the data
+prism_set_dl_dir(prism_data_path) 
+
+# Download long-term normal data -- warning: this failed and I had to mqnually download these from https://prism.oregonstate.edu/normals/ (to do this, click select the spatial resolution then click "Download All Normals Data")
 #get_prism_normals("tmean", keepZip = FALSE, resolution = "800m")
 #get_prism_normals("ppt", keepZip = FALSE, resolution = "800m")
 
@@ -76,11 +78,9 @@ plot(r)
 focal_site_name <- "MammothLakes"
 focal_site <- c(-118.990280, 37.592576)
 
-# Extract annual data for the location using the prism library's slice function
+# Extract annual tmean data for the location using the prism library's slice function
 focal_data_tmean <- prism_archive_subset("tmean", "annual", years = 1993:2023)
-tmean_plot <- pd_plot_slice(focal_data_tmean, focal_site)
-focal_data_ppt <- prism_archive_subset("ppt", "annual", years = 1993:2023)
-ppt_plot <- pd_plot_slice(focal_data_ppt, focal_site)
+tmean_plot <- pd_plot_slice(focal_data_tmean, focal_site) # This function returns a bunch of stuff but what we want is the $data component 
 
 # To get water year precipitation, instead of calendar year, we have to grab the monthly data instead and do some mutating
 focal_data_ppt <- prism_archive_subset("ppt", "monthly", years = 1993:2023)

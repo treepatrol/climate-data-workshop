@@ -1,6 +1,7 @@
 # Script to demonstrate loading and summarizing monthly climate data layers
 
 library(tidyr)
+library(dplyr)
 library(terra)
 library(sf)
 library(purrr)

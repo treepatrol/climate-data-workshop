@@ -117,7 +117,7 @@ d_long |> select(days_since_1900, date, year, month, day, julian_date) |> head()
 ggplot(d_long |> filter(ID < 21), aes(x = date, y = tmax_c, group = ID, color = ID)) + geom_line() + labs(title = "Time series of tmax", x = "Date", y = "Temperature (C)") + theme_minimal()
 
 
-#### Converting daily time series data into annual weather indices 
+#### Using daily time series data to make annual weather summaries or indices 
 
 # We can define any kind of function we want!
 
@@ -131,7 +131,7 @@ calculate_gdd <- function(temp, base_temp = 10) {
 # Use the climate index function to summarize by year and point location
 d_annual <- d_long |> 
   group_by(year, ID) |> 
-  summarize(gdd = calculate_gdd(tmax_c)) |>
+  summarize(gdd = calculate_gdd(tmax_c, 10)) |>
   cbind(focal_centroids)
   
 # To visualize the results, plot growing degree days for the extracted points as a map

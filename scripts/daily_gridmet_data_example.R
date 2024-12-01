@@ -63,6 +63,16 @@ ggplot(plss_grid_subset) + geom_sf()
 # Load the USFS seed zones layer
 seed_zones <- st_read(paste(PLSS_DIR, "seed_zones.gpkg", sep = "/"))
 
+# What if we don't know the projection that the seed zones data are in? We don't actually need to know to reproject it. But if we want to check: 
+st_crs(seed_zones)
+
+# If we had a spatial dataset that is missing its CRS we can try to find it out 
+library(crsuggest)
+seed_zone_783 <- seed_zones[seed_zones$SEED_ZONE == 783,]
+st_crs(seed_zone_783) = NA
+guess_crs(seed_zone_783, target_location = c(-118.990280, 37.592576))
+view_crs(3309)
+
 # Transform the seed zones to the same projection as the plss grid 
 seed_zones = st_transform(seed_zones, st_crs(plss_grid))
 
@@ -138,5 +148,7 @@ d_annual <- d_long |>
 ggplot(d_annual) + geom_sf(aes(geometry = geom, color = gdd)) + scale_color_viridis_c(option = "plasma") + labs(title = "Growing degree days", fill = "GDD", x = "Longitude (decimal degrees E)", y = "Latitude (decimal degrees N)") + theme_minimal()
 
 
-#### Next steps: we could automate downloading and extracting from netCDF files for many different years and multiple climate variables! 
+#### Next steps: we could automate downloading and extracting from netCDF files for many different years and multiple climate variables?
+
+GRIDMET_URL = "http://www.northwestknowledge.net/metdata/data/"
 

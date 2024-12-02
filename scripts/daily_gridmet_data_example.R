@@ -16,9 +16,9 @@ PLSS_DIR = "~/Library/CloudStorage/Box-Box/climate-data-workshop/plss_data"
 
 #### Workflow
 
-## Load the climate data layers
+##### Load the climate data layers
 
-## Many climate layers, including daily gridmet data, are normally stored in compact nbinary format called netCDF 
+# Many climate layers, including daily gridmet data, are normally stored in compact nbinary format called netCDF 
 
 # Download netcdf file from the THREDDs climate data server
 # see http://thredds.northwestknowledge.net:8080/thredds/reacch_climate_MET_catalog.html 
@@ -26,22 +26,36 @@ PLSS_DIR = "~/Library/CloudStorage/Box-Box/climate-data-workshop/plss_data"
 # First we might need to set the "timeout option" to a longer time to make sure that the download function doesn't just give up before getting the whole file 
 options(timeout = max(300, getOption("timeout"))) 
 
-# Download the netCDF file for one year of daily maximum temperature data
-#downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/tmmx_2023.nc"), destfile = paste0(CLIM_DIR, "/tmmx_2022.nc"), mode = "wb")
+# Download a netCDF file for daily temperature variables for one year of data
+variable_to_get <- "tmmx" # daily maximum temperature
+year_to_get <- 2023
+downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/", variable_to_get, "_", year_to_get, ".nc"), destfile = paste0(CLIM_DIR, "/", variable_to_get, "_", year_to_get, ".nc"), mode = "wb")
+
+variable_to_get <- "tmmn" # daily minimum temperature
+year_to_get <- 2023
+downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/", variable_to_get, "_", year_to_get, ".nc"), destfile = paste0(CLIM_DIR, "/", variable_to_get, "_", year_to_get, ".nc"), mode = "wb")
 
 # Load a netCDF file of daily data for one year as one big, multilayer raster
 list.files(CLIM_DIR)
-r <- rast(paste0(CLIM_DIR, "/tmmx_2023.nc"))
-dim(r)
+r_tmax <- rast(paste0(CLIM_DIR, "/tmmx_2023.nc"))
+dim(r_tmax)
 
 # Plot the first few layers of the raster
-plot(r[[1:9]])
+plot(r_tmax[[1:9]])
 
 # What is the name of the layers?
+names(r_tmax)[1:9]
+
+# Let's get the daily mean temperature (approximated as the average of the min and max daily temperatures)
+r_tmin <- rast(paste0(CLIM_DIR, "/tmmn_2023.nc"))
+r <- (r_tmax + r_tmin) / 2
+
+plot(r[[1:9]])
 names(r)[1:9]
+# Hmm noticing some unfamiliar units for days and degrees here. We'll deal with that later!
 
 
-# Now we can extract data from the raster using spatial features (points, polygons)
+#### Now we can extract data from the raster using spatial features (points, polygons)
 
 # One source of data might be a field GPS, like Derek's example last week. 
 
@@ -148,7 +162,41 @@ d_annual <- d_long |>
 ggplot(d_annual) + geom_sf(aes(geometry = geom, color = gdd)) + scale_color_viridis_c(option = "plasma") + labs(title = "Growing degree days", fill = "GDD", x = "Longitude (decimal degrees E)", y = "Latitude (decimal degrees N)") + theme_minimal()
 
 
-#### Next steps: we could automate downloading and extracting from netCDF files for many different years and multiple climate variables?
+#### Next steps: we could automate downloading and extracting from netCDF files for many different years at once
 
 GRIDMET_URL = "http://www.northwestknowledge.net/metdata/data/"
 
+# Function to get one netCDF file for a given variable and year
+get_gridmet_file <- function(variable_to_get, year_to_get, dest_dir) {
+  downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/", variable_to_get, "_", year_to_get, ".nc"), destfile = paste0(dest_dir, "/", variable_to_get, "_", year_to_get, ".nc"), mode = "wb")
+}
+
+# Use the fucnction to get 10 years of data for ppt 
+for (year in 2015:2024) {
+  get_gridmet_file("pr", year, CLIM_DIR)
+}
+
+# Put the 10 years of data together 
+ppt_rasters = list.files(path = CLIM_DIR, pattern = "pr_.*.nc", full.names = TRUE) |> 
+  rast()
+
+# Crop to the extent of CA to save space 
+ppt_rasters_ca = crop(ppt_rasters, ext(-124.5, -114.1, 32.3, 42.1))
+plot(ppt_rasters_ca[[1]])
+dim(ppt_rasters_ca)
+
+# Extract the data for the same points as before
+extracted_ppt = terra::extract(ppt_rasters_ca, focal_centroids, method = "bilinear")
+names(extracted_ppt)[1:10]
+
+d_ppt <- cbind(focal_centroids, extracted_ppt)
+
+d_ppt_long = pivot_longer(d_ppt, cols = starts_with("precipitation_"), names_to = "climate_layer", values_to = "value") |> 
+  separate_wider_delim(climate_layer, names = c("clim_var", "days_since_1900"), delim = ".") |> 
+  mutate(date = lubridate::ymd("1900-01-01") + as.numeric(days_since_1900),
+         ppt_mm = value) |> 
+  mutate(year = year(date), month = month(date), day = day(date), 
+         julian_date = lubridate::yday(date)) 
+
+# plot example time series
+ggplot(d_ppt_long |> filter(ID == 1000), aes(x = date, y = ppt_mm)) + geom_line(color = "slateblue") + labs(title = "Time series of ppt", x = "Date", y = "Precipitation (mm)") + theme_minimal()

@@ -16,6 +16,7 @@ PLSS_DIR = "~/Library/CloudStorage/Box-Box/climate-data-workshop/plss_data"
 
 #### Workflow
 
+
 ##### Load the climate data layers
 
 # Many climate layers, including daily gridmet data, are normally stored in compact nbinary format called netCDF 
@@ -50,6 +51,12 @@ names(r_tmax)[1:9]
 r_tmin <- rast(paste0(CLIM_DIR, "/tmmn_2023.nc"))
 r <- (r_tmax + r_tmin) / 2
 
+r_normal <- mean(r)
+plot(r_normal)
+
+r_anomaly <- r_normal - r
+plot(r_anomaly)
+
 plot(r[[1:9]])
 names(r)[1:9]
 # Hmm noticing some unfamiliar units for days and degrees here. We'll deal with that later!
@@ -67,6 +74,8 @@ plss_grid <- st_read(paste0(PLSS_DIR, "/plss_grid.gpkg"))
 # Check out some random set of grid cells 
 ggplot(plss_grid[1:2000,]) + geom_sf()
 
+head(plss_grid)
+
 # Scenario 1: we have a few specific TRS grid cells in mind to look at. 
 # Subset this grid -- for now using some arbitrary locations 
 plss_grid_subset = plss_grid |> dplyr::filter(MTRS %in% c("MDM-T15N-R10E-15", "MDM-T18N-R12E-15", "MDM-T20N-R10E-15", "MDM-T22N-R15E-15"))
@@ -76,6 +85,7 @@ ggplot(plss_grid_subset) + geom_sf()
 
 # Load the USFS seed zones layer
 seed_zones <- st_read(paste(PLSS_DIR, "seed_zones.gpkg", sep = "/"))
+plot(seed_zones)
 
 # What if we don't know the projection that the seed zones data are in? We don't actually need to know to reproject it. But if we want to check: 
 st_crs(seed_zones)
@@ -101,6 +111,9 @@ ggplot(plss_grid_subset) + geom_sf()
 
 # Get the centroids of our subset of TRS grid squares
 focal_centroids = plss_grid_subset |> st_centroid()
+
+# Reproject the centroids to the CRS of the climate data 
+focal_centroids = st_transform(focal_centroids, st_crs(r))
 
 # Extract the value of the climate raster at the centroid of the PLSS grid
 extracted = terra::extract(r, focal_centroids, method = "bilinear")

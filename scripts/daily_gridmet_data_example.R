@@ -51,13 +51,14 @@ names(r_tmax)[1:9]
 r_tmin <- rast(paste0(CLIM_DIR, "/tmmn_2023.nc"))
 r <- (r_tmax + r_tmin) / 2
 
+# Get the average temperature for time period covered by the data set 
 r_normal <- mean(r)
 plot(r_normal)
 
-r_anomaly <- r_normal - r
-plot(r_anomaly)
+# Calculate the daily anomalies
+r_anomaly <- r - r_normal 
+plot(r_anomaly[[180]]) # plot an early summer day 
 
-plot(r[[1:9]])
 names(r)[1:9]
 # Hmm noticing some unfamiliar units for days and degrees here. We'll deal with that later!
 

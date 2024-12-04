@@ -32,6 +32,9 @@ variable_to_get <- "tmmx" # daily maximum temperature
 year_to_get <- 2023
 downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/", variable_to_get, "_", year_to_get, ".nc"), destfile = paste0(CLIM_DIR, "/", variable_to_get, "_", year_to_get, ".nc"), mode = "wb")
 
+# Just for reference/comparison, here is an example of getting one netcdf file of nCLIMGRID data. These come in monthly blocks with temp and precip variables combined, so we'll need a different workflow to handle those. 
+#downloader::download(url = "https://www.ncei.noaa.gov/pub/data/daily-grids/v1-0-0/grids/2023/ncdd-202301-grd-scaled.nc", destfile ="./ncdd-202301-grd-scaled.nc", mode = "wb")
+
 variable_to_get <- "tmmn" # daily minimum temperature
 year_to_get <- 2023
 downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/", variable_to_get, "_", year_to_get, ".nc"), destfile = paste0(CLIM_DIR, "/", variable_to_get, "_", year_to_get, ".nc"), mode = "wb")

@@ -194,8 +194,10 @@ for (year in 2015:2024) {
 }
 
 # Put the 10 years of data together 
-ppt_rasters = list.files(path = CLIM_DIR, pattern = "pr_.*.nc", full.names = TRUE) |> 
-  rast()
+raster_files_list = list.files(path = CLIM_DIR, pattern = "pr_.*.nc", full.names = TRUE) # pull out names of all files containing the pattern corresponding to our focal climate variable, here "pr" for precip
+raster_files_list
+
+ppt_rasters = rast(raster_files_list) # create the stacked raster 
 
 # Crop to the extent of CA to save space 
 ppt_rasters_ca = crop(ppt_rasters, ext(-124.5, -114.1, 32.3, 42.1))

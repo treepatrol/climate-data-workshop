@@ -208,8 +208,10 @@ dim(ppt_rasters_ca)
 extracted_ppt = terra::extract(ppt_rasters_ca, focal_centroids, method = "bilinear")
 names(extracted_ppt)[1:10]
 
+# Attach the location information to the extracted data 
 d_ppt <- cbind(focal_centroids, extracted_ppt)
 
+# Do some wrangling to put data in long format and convert dates to interpretable units
 d_ppt_long = pivot_longer(d_ppt, cols = starts_with("precipitation_"), names_to = "climate_layer", values_to = "value") |> 
   separate_wider_delim(climate_layer, names = c("clim_var", "days_since_1900"), delim = ".") |> 
   mutate(date = lubridate::ymd("1900-01-01") + as.numeric(days_since_1900),
@@ -217,5 +219,5 @@ d_ppt_long = pivot_longer(d_ppt, cols = starts_with("precipitation_"), names_to 
   mutate(year = year(date), month = month(date), day = day(date), 
          julian_date = lubridate::yday(date)) 
 
-# plot example time series
+# Plot an example time series for one location
 ggplot(d_ppt_long |> filter(ID == 1000), aes(x = date, y = ppt_mm)) + geom_line(color = "slateblue") + labs(title = "Time series of ppt", x = "Date", y = "Precipitation (mm)") + theme_minimal()

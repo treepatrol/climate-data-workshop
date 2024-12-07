@@ -188,7 +188,7 @@ get_gridmet_file <- function(variable_to_get, year_to_get, dest_dir) {
   downloader::download(url = str_c("http://www.northwestknowledge.net/metdata/data/", variable_to_get, "_", year_to_get, ".nc"), destfile = paste0(dest_dir, "/", variable_to_get, "_", year_to_get, ".nc"), mode = "wb")
 }
 
-# Use the fucnction to get 10 years of data for ppt 
+# Use the function to get 10 years of data for ppt 
 for (year in 2015:2024) {
   get_gridmet_file("pr", year, CLIM_DIR)
 }

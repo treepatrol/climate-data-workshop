@@ -1,8 +1,8 @@
 # Author: Andrew Latimer
 # Date: Fall Quarter 2024
-# Input:
+# Input: prism_data_monthly from Box now in treepatrol.org/Analysis/Data
 # Code Description: Script to demonstrate loading and summarizing monthly climate data layers
-# Output: 
+# Output: An annual summary of tmean with tidy columns in a dataframe. 
 
 library(tidyr)
 library(dplyr)

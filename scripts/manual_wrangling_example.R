@@ -19,28 +19,7 @@ CLIM_DIR = "/Users/jennifercribbs/Documents/TreePatrol.org/Analysis/Data/prism_d
 PLOTS_FILE = "/Users/jennifercribbs/Documents/TreePatrol.org/Analysis/Data/plot_locs/ofo-plots.gpkg"
 
 
-#### Workflow
 
-## Load the climate data layers
-
-# Get a list of all the relevant files
-rast_files = list.files(CLIM_DIR, pattern = "[0-9]{6}_bil.bil$") # pattern gets any thing with 6 digits before _bil.bil
-# there are 6 plots/sites with 6 files each with a different file type that work together similar to a shapefile
-
-# Load them all as a big many-layer raster
-r = rast(paste0(CLIM_DIR, "/", rast_files))
-
-## Manually inspecting the layers
-
-# Example of viewing a single layer (i.e. one month)
-plot(r[[7]]) # 7 is July
-
-# What is the name of that layer?
-names(r)[[1]] # first layer is January
-
-# You could do the same thing for any of the layers. If you want to look up which layer to display,
-# you can display all the names:
-names(r)
 
 # Then you can plot layer(s) by name
 plot(r[["PRISM_tmean_stable_4kmM3_202210_bil"]]) # october
@@ -65,7 +44,28 @@ head(extracted)
 extracted = extracted[, -1]
 
 # A function to take the 5th part of a string (split by "_")
-get_5th = function(x) {
+get_5th = function(x)#### Workflow
+
+## Load the climate data layers
+
+# Get a list of all the relevant files
+rast_files = list.files(CLIM_DIR, pattern = "[0-9]{6}_bil.bil$") # pattern gets any thing with 6 digits before _bil.bil
+# there are 6 plots/sites with 6 files each with a different file type that work together similar to a shapefile
+
+# Load them all as a big many-layer raster
+r = rast(paste0(CLIM_DIR, "/", rast_files))
+
+## Manually inspecting the layers
+
+# Example of viewing a single layer (i.e. one month)
+plot(r[[7]]) # 7 is July
+
+# What is the name of that layer?
+names(r)[[1]] # first layer is January
+
+# You could do the same thing for any of the layers. If you want to look up which layer to display,
+# you can display all the names:
+names(r) {
     parts = strsplit(x, "_")
     fifth = map(parts, 5)
     unlist(fifth)

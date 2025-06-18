@@ -3,7 +3,7 @@
 # Andrew Latimer 
 
 # This approach uses the prism R library, which has some functions that shortcut some of the more general and manual steps Derek is demonstrating. 
-# So it's limited to PRISM data only, and less flexible that those more general methods, but sometimes quicker if you want to grab data from particular points or areas. 
+# So it's limited to PRISM data only, and less flexible than those more general methods, but sometimes quicker if you want to grab data from particular points or areas. 
 
 # Which gridded climate product to use??? Lots to consider! But here's one recent paper by authors including some familiar names that compares PRISM to TopoWx, DayMet, Livneh, and ClimateNA. 
 # https://www.fs.usda.gov/psw/publications/wright/psw_2022_wright001_stern.pdf
@@ -12,8 +12,10 @@
 # PRISM website: https://prism.oregonstate.edu/
 # Description of datasets: https://prism.oregonstate.edu/documents/PRISM_datasets.pdf
 # Key points: - PRISM produces both long-term climatic averages ("normals") available at ~800m resolution, and daily, monthly, and annual data at ~4 km resolution (available down to ~800m for a fee of several thousand $). 
+# Is 4km resolution fine for plot level climate variables? Is it worth buying the 800m resolution? Can the same degree of temporal precision be achieved with gridmet with the extra work?
 # - Time periods: Normals are averages across 1991-2020, monthly and annual data is available from 1895-present, and daily data from 1981-present.
 # - Variables available are: tmean (avg daily mean temperature), tmin (avg daily min temperature), tmax (avg daily max temperature), ppt (total precipitation), tdmean (avg daily dewpoint temperature), vpdmin (avg daily minimum vapor pressure deficit) and vpdmax (avg daily maximum vapor pressure deficit).
+# tdmean and whether daily temperature is above or below might be more relevant for WPBR growth? 
 # - Note: they offer 2 forms of the time-series data sets: one that uses all the data available at any given time to give the best snapshot for that time period("AN"); and a "long-term" data set that uses only longer-term, more stable stations to improve temporal consistency ("LT"). For our work looking at change over time, it's probably important to use the "long-term" or "LT" versions.
 
 # This demo just focuses on ppt and tmean data. 
@@ -33,11 +35,11 @@ library(lubridate)
 # The first step in using PRISM is usually to download the data we need from the PRISM site. The prism library does this for us, but we need to set up a directory to store the data.
 
 # Normally we need to make a subdirectory to store the climate data from PRISM 
-#dir.create("../prism_data")
-#prism_data_path <- "../prism_data/"
+# dir.create("../Data/prism_data_downloads")
+# prism_data_path <- "../Data/prism_data_" # keep annual and monthly separate
 
 # Alternatively, we might connect to a shared drive where we (or someone) already downloaded and stored the relevant PRISM data. In that case we would set the data path to point to that location instead. 
-prism_data_path <- "/Users/latimer/Google Drive/My Drive/Cones/GeoData/prism_data/" # or whatever the path is on your computer!
+prism_data_path <- "/Users/jennifercribbs/Documents/TreePatrol.org/Analysis/Data/prism_data_monthly" # or whatever the path is on your computer!
 
 # Download the climate layers we want from PRISM 
 #   (assuming it's not already stored on Box or somewhere else!)
@@ -50,23 +52,27 @@ prism_set_dl_dir(prism_data_path)
 #get_prism_normals("ppt", keepZip = FALSE, resolution = "800m")
 
 # Download annual data
-get_prism_annual("tmean", years = 1993:2023, keepZip = FALSE)
-get_prism_annual("ppt", years = 1993:2023, keepZip = FALSE)
+#get_prism_annual("tmean", years = 1993:2023, keepZip = TRUE)
+#get_prism_annual("ppt", years = 1993:2023, keepZip = TRUE)
 
 # Download monthly data
-get_prism_monthlys("tmean", years = 1993:2023, mon = 1:12, keepZip = FALSE)
-get_prism_monthlys("ppt", years = 1993:2023, mon = 1:12, keepZip = FALSE)
+#get_prism_monthlys("tmean", years = 1993:2023, mon = 1:12, keepZip = TRUE)
+#get_prism_monthlys("ppt", years = 1993:2023, mon = 1:12, keepZip = TRUE)
+
+# Check downloads
+focal_data_ppt <- prism_archive_subset("ppt", "monthly", years = 1993:2023)
+print(focal_data_ppt) 
+
+# inspect folders
+# List all files in your PRISM data directory
+list.files(prism_get_dl_dir(), recursive = TRUE)
+# It looks like there are 7 files with distinct extensions for each file name. 
 
 # Check on those files that we downloaded and see what's there
 list.files(prism_data_path) %>%
   head(20)
 list.files(prism_data_path, recursive = TRUE) %>%
   head(30)
-# Look at a the first available file as a raster 
-testfile_name <- list.files(prism_data_path, recursive = TRUE)[1]
-example_raster <- rast(paste0(prism_data_path, testfile_name))
-plot(example_raster)
-
 
 #### USING THE DATA ####
 
